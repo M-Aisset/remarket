@@ -42,7 +42,7 @@ export default function Reply({
   }
   return (
     <div className={`mt-7 flex justify-start items-start gap-2 ${isRepliesHidden ? "hidden" : ""}`}>
-      <Avatar className="size-9 flex-none">
+      <Avatar className="size-9 flex-none border">
         <AvatarImage src={profileImage} />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>

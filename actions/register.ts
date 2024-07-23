@@ -33,7 +33,6 @@ export async function register(formData: FormData) {
     await signIn(user.id);
     return { success: true, message: "Registered successfully" };
   } catch (e) {
-    console.log(e);
     return { success: false, message: "Something went wrong" };
   }
 }

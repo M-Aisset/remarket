@@ -1,7 +1,7 @@
 "use client";
 
+import { GanttChartSquare } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { usePathname, useSearchParams } from "next/navigation";
 
 function searchParamsFormat(searchParamsArray: [string, string][]) {
@@ -14,17 +14,18 @@ function searchParamsFormat(searchParamsArray: [string, string][]) {
   return searchParamsFormat;
 }
 
-export default function SigninButton() {
+export default function RestaurantRegisterButton() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   return (
     <Link
-      className={pathname === "/signin" || pathname === "/register" ? "hidden" : ""}
-      href={`/signin?from=${
+      href={`/restaurantRegister?from=${
         pathname + encodeURIComponent(searchParamsFormat(Array.from(searchParams.entries())))
       }`}
+      className="flex justify-start items-center w-full py-2 px-2"
     >
-      <Button>Sign in</Button>
+      <GanttChartSquare className="mr-2 h-4" />
+      <span>Create restaurant</span>
     </Link>
   );
 }

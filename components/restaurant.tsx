@@ -67,7 +67,7 @@ export default function Restaurant({
             sizes="100vw"
             style={{ width: "100%", height: "100%" }}
             src={image}
-            alt="Car image"
+            alt="Restaurant image"
             className="object-cover aspect-video rounded-t-md"
           />
         </div>

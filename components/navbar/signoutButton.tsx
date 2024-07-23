@@ -9,7 +9,12 @@ export default function SignoutButton() {
   const router = useRouter();
   async function actionHandler(formData: FormData) {
     const data = await signout(formData);
-    router.refresh();
+    if (data.success) {
+      console.log(data.message);
+      router.refresh();
+    } else {
+      console.log(data.message);
+    }
   }
   return (
     <form action={actionHandler} className="w-full">

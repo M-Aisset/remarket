@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, MoreVertical, Star } from "lucide-react";
+import { Images, MapPin, MoreVertical, Star } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import Image from "next/image";
 import PopularDishes from "@/components/pages/restaurant/popularDishes";
 import HoursAndLocation from "@/components/pages/restaurant/hoursAndLocation";
@@ -60,6 +68,7 @@ export default async function Restaurant({ params }: { params: { restaurantId: s
         review: reviewParent.id,
         user: user?.id,
       });
+      const reviewLikes = await ReviewLike.countDocuments({ review: reviewParent.id });
 
       const replies = await Promise.all(
         reviewsDb
@@ -69,6 +78,7 @@ export default async function Restaurant({ params }: { params: { restaurantId: s
               review: reply.id,
               user: user?.id,
             });
+            const replyLikes = await ReviewLike.countDocuments({ review: reply.id });
 
             return {
               id: reply.id as string,
@@ -76,7 +86,7 @@ export default async function Restaurant({ params }: { params: { restaurantId: s
               username: (reply.user as IUser).userName,
               content: reply.content,
               isLiked: replyLike !== null,
-              likeNumber: 10,
+              likeNumber: replyLikes,
             };
           })
       );
@@ -88,7 +98,7 @@ export default async function Restaurant({ params }: { params: { restaurantId: s
         rating: reviewParent.rating as string,
         content: reviewParent.content,
         isLiked: reviewLike !== null,
-        likeNumber: 10,
+        likeNumber: reviewLikes,
         replies: replies,
       };
     })
@@ -102,7 +112,10 @@ export default async function Restaurant({ params }: { params: { restaurantId: s
     address: restaurantDb.address,
     wilaya: restaurantDb.wilaya,
     location: restaurantDb.location,
-    mainImageUrl: restaurantDb.images[0].imageUrl,
+    restaurantImagesUrls: restaurantDb.images.map((image) => {
+      return image.imageUrl;
+    }),
+    mainImageUrl: restaurantDb.images.find((image) => image.isMain)!.imageUrl,
     menuPagesImageUrl: restaurantDb.menu.menuPagesImageUrl,
     isLiked: restaurantLike !== null,
     rating: averageRating,
@@ -121,53 +134,79 @@ export default async function Restaurant({ params }: { params: { restaurantId: s
   };
   return (
     <div>
-      <div className="sm:px-4 pt-6 pb-4">
-        <div className="relative w-full h-[20rem] overflow-hidden sm:rounded-lg sm:border">
-          <Image
-            src={restaurant.mainImageUrl}
-            alt="Banner image"
-            className="object-cover sm:rounded-lg"
-            height={0}
-            width={0}
-            sizes="100vw"
-            style={{ width: "100%", height: "100%" }}
-          />
-        </div>
-      </div>
-      <div className="pb-4 sm:px-16 px-4 border-b flex justify-between items-center gap-3">
-        <div className="md:block hidden">
-          <Avatar className="size-[7rem]">
-            <AvatarImage src={restaurant.profileImage} />
-            <AvatarFallback>{Array.from(restaurant.userName)[0].toUpperCase()}</AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="w-full">
-          <p className="text-sm text-muted-foreground flex justify-start items-center gap-0.5">
-            <MapPin className="size-4" />
-            {restaurant.wilaya}
-          </p>
-          <div className="w-full flex justify-between items-start gap-2">
-            <div className="flex justify-start items-center gap-3 flex-wrap">
-              <p className="sm:text-4xl text-3xl font-semibold">{restaurant.name}</p>
-              <div className="flex justify-start items-center gap-1">
-                <Star className="size-6 rounded-full bg-yellow-500 text-white p-1" />
-                <span className="text-sm">{restaurant.rating}</span>
-              </div>
-            </div>
-            <div className="flex justify-center items-center gap-3">
-              <span className="w-px h-7 bg-border mr-3"></span>
-              <RestaurantLikeButton restaurantId={restaurant.id} initialIsLiked={restaurant.isLiked} />
-              <Button variant="outline" size="icon" className="rounded-full size-9">
-                <MoreVertical />
-              </Button>
-            </div>
+      <div className="dark:bg-dot-white/[0.2] bg-dot-black/[0.22]">
+        <div className="sm:px-4 pt-6">
+          <div className="relative w-full h-[20rem] overflow-hidden sm:rounded-lg sm:border border-y">
+            <Image
+              src={restaurant.mainImageUrl}
+              alt="Banner image"
+              className="object-cover sm:rounded-lg"
+              height={0}
+              width={0}
+              sizes="100vw"
+              style={{ width: "100%", height: "100%" }}
+            />
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="absolute top-3 right-3 backdrop-blur-lg bg-background/75">
+                  <Images className="mr-2" />
+                  Restaurant photos
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-2xl p-2">
+                <DialogTitle className="text-3xl">Restaurant photos</DialogTitle>
+                <div className="h-80 overflow-y-auto">
+                  {restaurant.restaurantImagesUrls.map((restaurantImageUrl, index) => (
+                    <div key={index}>
+                      <Image
+                        height={0}
+                        width={0}
+                        quality={50}
+                        sizes="100vw"
+                        style={{ width: "100%", height: "auto" }}
+                        src={restaurantImageUrl}
+                        alt="Menu page"
+                        className="mt-3"
+                      />
+                      <p className="pt-2 text-center">
+                        Photo {index + 1} / {restaurant.restaurantImagesUrls.length}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-          <div className="mt-3 w-full flex justify-start items-center gap-2 relative overflow-x-auto">
-            {restaurant.categories.map((category, index) => (
-              <div key={index} className="flex-none border border-primary px-2 py-0.5 rounded-md">
-                {category}
+        </div>
+        <div className="py-6 md:px-20 px-4 border-b">
+          <div className="w-full">
+            <p className="text-sm text-muted-foreground flex justify-start items-center gap-0.5">
+              <MapPin className="size-4" />
+              {restaurant.wilaya}
+            </p>
+            <div className="w-full flex justify-between items-start gap-2">
+              <div className="flex justify-start items-center gap-3 flex-wrap">
+                <p className="text-4xl font-semibold">{restaurant.name}</p>
+                <div className="flex justify-start items-center gap-1">
+                  <Star className="size-6 rounded-full bg-yellow-500 text-white p-1" />
+                  <span className="text-sm">{restaurant.rating}</span>
+                </div>
               </div>
-            ))}
+              <div className="flex justify-center items-center gap-3">
+                <span className="w-px h-7 bg-border mr-3"></span>
+                <RestaurantLikeButton restaurantId={restaurant.id} initialIsLiked={restaurant.isLiked} />
+                <Button variant="outline" size="icon" className="rounded-full size-9">
+                  <MoreVertical />
+                </Button>
+              </div>
+            </div>
+            <div className="mt-3 w-full flex justify-start items-center gap-2 overflow-x-auto">
+              {restaurant.categories.map((category, index) => (
+                <div key={index} className="flex-none border border-primary px-2 py-0.5 rounded-md bg-background">
+                  {category}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

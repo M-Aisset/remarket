@@ -83,8 +83,8 @@ export default function HoursAndLocation({
     }
   }
   return (
-    <div className="pt-10">
-      <p className="text-[1.6rem] font-semibold">Location & Hours</p>
+    <div className="pt-9">
+      <p className="text-2xl font-semibold">Location & Hours</p>
       <div className="pt-4 flex lg:flex-row flex-col-reverse justify-between items-center gap-4 lg:gap-10">
         <table className="flex-none lg:w-[50%] w-full">
           <tbody>
@@ -97,11 +97,19 @@ export default function HoursAndLocation({
                     : "Closed"}
                 </td>
                 {hoursContoller(hour).isClosed ? (
-                  <td className={`text-red-500 py-1.5 ${hoursContoller(hour).isToday ? "" : "hidden"}`}>
+                  <td
+                    className={`text-red-500 py-1.5 xs:text-left text-center ${
+                      hoursContoller(hour).isToday ? "" : "hidden"
+                    }`}
+                  >
                     Closed now
                   </td>
                 ) : (
-                  <td className={`text-green-600 py-1.5 ${hoursContoller(hour).isToday ? "" : "hidden"}`}>
+                  <td
+                    className={`text-green-600 py-1.5 xs:text-left text-center ${
+                      hoursContoller(hour).isToday ? "" : "hidden"
+                    }`}
+                  >
                     Opened now
                   </td>
                 )}
@@ -109,11 +117,11 @@ export default function HoursAndLocation({
             ))}
           </tbody>
         </table>
-        <div className="border rounded-md lg:w-[50%] w-full h-[15rem] flex justify-center items-center flex-col gap-6">
+        <div className="dark:bg-dot-white/[0.2] bg-dot-black/[0.22] relative border rounded-md lg:w-[50%] w-full h-[15rem] flex justify-center items-center flex-col gap-6">
           <div className="flex justify-center items-center p-3 border rounded-md bg-muted/40">
             <MapPin className="size-10" />
           </div>
-          <p className="text-xl font-medium">
+          <p className="text-xl font-medium text-center">
             {address}, {wilaya}
           </p>
           <Link target="_blank" className="text-primary hover:text-primary/80 text-sm" href={location}>

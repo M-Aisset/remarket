@@ -1,4 +1,4 @@
-import { GanttChartSquare, Heart, LayoutDashboard, Settings } from "lucide-react";
+import { ChefHat, GanttChartSquare, Heart, LayoutDashboard, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import Link from "next/link";
 import SignoutButton from "./signoutButton";
 import connectToDatabase from "@/lib/mongodb";
 import { IRestaurant, Restaurant } from "@/models/restaurant";
+import RestaurantRegisterButton from "./restaurantRegisterButton";
 
 export default async function ProfileMenu({
   userId,
@@ -27,7 +28,7 @@ export default async function ProfileMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-10 w-10 cursor-pointer">
+        <Avatar className="h-10 w-10 cursor-pointer border">
           <AvatarImage src={profileImageUrl} />
           <AvatarFallback>{Array.from(userName)[0].toUpperCase()}</AvatarFallback>
         </Avatar>
@@ -36,28 +37,36 @@ export default async function ProfileMenu({
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-border" />
         <DropdownMenuItem className="p-0">
-          <Link href="/dashboard" className="flex justify-start items-center w-full py-1.5 px-2">
+          <Link href="/dashboard" className="flex justify-start items-center w-full py-2 px-2">
             <Heart className="mr-2 h-4 stroke-[2.3]" />
-            <span>Favorite Restaurant</span>
+            <span>Favorite Restaurants</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-border" />
         <DropdownMenuItem className="p-0">
           {restaurant ? (
-            <Link href="/dashboard" className="flex justify-start items-center w-full py-1.5 px-2">
-              <GanttChartSquare className="mr-2 h-4" />
+            <Link href="/dashboard/overview" className="flex justify-start items-center w-full py-2 px-2">
+              <LayoutDashboard className="mr-2 h-4" />
               <span>Restaurant Dashboard</span>
             </Link>
           ) : (
-            <Link href="/restaurantRegister" className="flex justify-start items-center w-full py-1.5 px-2">
-              <GanttChartSquare className="mr-2 h-4" />
-              <span>Create restaurant</span>
-            </Link>
+            <RestaurantRegisterButton />
           )}
         </DropdownMenuItem>
+        {restaurant && (
+          <DropdownMenuItem className="p-0">
+            <Link
+              href={`/restaurant/${restaurant.id}`}
+              className="flex justify-start items-center w-full py-2 px-2"
+            >
+              <ChefHat className="mr-2 h-4 stroke-[2.3]" />
+              <span>Your Restaurant</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator className="bg-border" />
         <DropdownMenuItem className="p-0">
-          <Link href="/settings" className="flex justify-start items-center w-full py-1.5 px-2">
+          <Link href="/settings" className="flex justify-start items-center w-full py-2 px-2">
             <Settings className="mr-2 h-4" />
             <span>Settings</span>
           </Link>

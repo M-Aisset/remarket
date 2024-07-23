@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 
-export default function Signin({
+export default function SigninPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };

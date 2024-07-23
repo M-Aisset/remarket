@@ -21,7 +21,7 @@ export default function NavbarOptions() {
         <DropdownMenuLabel className="flex justify-start items-center gap-3">
           Language: <LanguageToggle />
         </DropdownMenuLabel>
-        <DropdownMenuLabel className="flex justify-start items-center gap-3">
+        <DropdownMenuLabel className="hidden justify-start items-center gap-3">
           Dark mode: <ThemeToggle />
         </DropdownMenuLabel>
       </DropdownMenuContent>

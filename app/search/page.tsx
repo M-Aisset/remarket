@@ -35,8 +35,8 @@ export default function Search({
   )
     redirect("/search?searchQuery=&sort=random&rating=any&categories=any&offerings=any&wilaya=any");
   return (
-    <div className="px-6 md:px-16 py-6 md:py-10 flex justify-start items-start gap-6">
-      <div className="lg:block hidden w-[22rem]">
+    <div className="px-6 md:px-16 py-6 flex justify-start items-start gap-6">
+      <div className="lgp:block hidden w-[22rem]">
         <Filter searchParams={searchParams} />
       </div>
       <div className="w-full">

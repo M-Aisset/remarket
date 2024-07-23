@@ -30,6 +30,9 @@ import { restaurantRegister } from "@/actions/restaurantRegister";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
+import { DndContext, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const hours = [
   { day: "Monday" },
@@ -148,16 +151,12 @@ const algWilayas = [
 ];
 const restaurantOfferings = ["Reservations", "Offers Delivery", "Outdoor Seating", "Takeaway"];
 
-export default function RestaurantRegister({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default function Settings() {
   const router = useRouter();
   const [categories, SetCategories] = useState<string[]>([]);
   const [offerings, SetOfferings] = useState<string[]>([]);
-  const [restaurantPhotos, setRestaurantPhotos] = useState<{ file: File; url: string }[]>([]);
-  const [menuPhotos, setMenuPhotos] = useState<{ file: File; url: string }[]>([]);
+  const [restaurantPhotos, setRestaurantPhotos] = useState<{ id: number; file: File; url: string }[]>([]);
+  const [menuPhotos, setMenuPhotos] = useState<{ id: number; file: File; url: string }[]>([]);
   const [popularDishes, setPopularDishes] = useState<{ photo: File; url: string; name: string; price: string }[]>(
     []
   );
@@ -166,12 +165,170 @@ export default function RestaurantRegister({
   const disheName = useRef<HTMLInputElement>(null);
   const dishePrice = useRef<HTMLInputElement>(null);
 
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  const handleDragEndRestaurantPhotos = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setRestaurantPhotos((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  function RestaurantPhotoSortableItem({
+    index,
+    content,
+  }: {
+    index: number;
+    content: { id: number; file: File; url: string };
+  }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: content.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className={`relative border rounded-lg cursor-grab`}
+        key={index}
+      >
+        <Image
+          height={0}
+          width={0}
+          quality={30}
+          sizes="100vw"
+          style={{ width: "100%", height: "100%" }}
+          draggable={false}
+          src={content.url}
+          alt="Restaurant image"
+          className="object-cover rounded-lg aspect-video"
+        />
+        <Button
+          type="button"
+          onClick={() => {
+            const newArray = [...restaurantPhotos];
+            newArray.splice(index, 1);
+            setRestaurantPhotos(newArray);
+          }}
+          size="icon"
+          variant="outline"
+          className="bg-background hover:bg-accent opacity-80 absolute top-1 right-1 rounded-full p-1.5"
+        >
+          <Trash2 className="h-5 w-5" />
+        </Button>
+        <div className="rounded-full border border-white bg-primary size-10 absolute top-1 left-1 text-white flex justify-center items-center">
+          {index + 1}
+        </div>
+      </div>
+    );
+  }
+
+  const handleDragEndMenuPhotos = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setMenuPhotos((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  function MenuPhotoSortableItem({
+    index,
+    content,
+  }: {
+    index: number;
+    content: { id: number; file: File; url: string };
+  }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: content.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className={`relative border rounded-lg cursor-grab`}
+        key={index}
+      >
+        <Image
+          height={0}
+          width={0}
+          quality={30}
+          sizes="100vw"
+          style={{ width: "100%", height: "100%" }}
+          src={content.url}
+          alt="Menu image"
+          className="object-cover rounded-lg aspect-video"
+        />
+        <Button
+          type="button"
+          onClick={() => {
+            const newArray = [...menuPhotos];
+            newArray.splice(index, 1);
+            setMenuPhotos(newArray);
+          }}
+          size="icon"
+          variant="outline"
+          className="bg-background hover:bg-accent opacity-80 absolute top-1 right-1 rounded-full p-1.5"
+        >
+          <Trash2 className="h-5 w-5" />
+        </Button>
+        <div className="rounded-full border border-white bg-primary size-10 absolute top-1 left-1 text-white flex justify-center items-center">
+          {index + 1}
+        </div>
+      </div>
+    );
+  }
+
+  const [hoursState, setHoursState] = useState<string[]>(Array(28).fill(""));
+  const updateHoursState = (index: number, value: string) => {
+    setHoursState((prevState) => {
+      return prevState.map((item, idx) => {
+        if (idx === index) {
+          return value;
+        }
+        return item;
+      });
+    });
+  };
+
   function restaurantPhotosHandler(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
 
     if (files) {
       const imageFiles = Array.from(files).filter((file) => file.type.startsWith("image/"));
       const imageFilesWithUrls = imageFiles.map((file) => ({
+        id: Date.now(),
         file,
         url: URL.createObjectURL(file),
       }));
@@ -185,6 +342,7 @@ export default function RestaurantRegister({
     if (files) {
       const imageFiles = Array.from(files).filter((file) => file.type.startsWith("image/"));
       const imageFilesWithUrls = imageFiles.map((file) => ({
+        id: Date.now(),
         file,
         url: URL.createObjectURL(file),
       }));
@@ -222,8 +380,18 @@ export default function RestaurantRegister({
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>, index: number) {
+  function handleInputChangeMM(event: React.ChangeEvent<HTMLInputElement>, index: number) {
     const value = event.target.value;
+    if (value === "" || (value.length <= 2 && /^\d*$/.test(value) && Number(value) <= 59))
+      updateHoursState(index, value);
+    if (value.length === 2 && index < inputRefs.current.length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  }
+  function handleInputChangeHH(event: React.ChangeEvent<HTMLInputElement>, index: number) {
+    const value = event.target.value;
+    if (value === "" || (value.length <= 2 && /^\d*$/.test(value) && Number(value) <= 23))
+      updateHoursState(index, value);
     if (value.length === 2 && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -264,29 +432,21 @@ export default function RestaurantRegister({
     const data = await restaurantRegister(formData);
     if (data.success) {
       console.log(data.message);
-      /* router.push(
-        searchParams.from !== undefined && searchParams.from !== ""
-          ? (searchParams.from as string)
-          : "/"
-      );*/
     } else {
       console.log(data.message);
     }
   }
 
   return (
-    <div className="py-8 relative overflow-x-hidden">
-      <div className="px-2 pb-4">
-        <h1 className="text-center font-semibold text-[2.5rem]">Create a new restaurant account</h1>
-      </div>
+    <div className="px-1 relative overflow-x-hidden">
       <form action={actionHandler}>
         <div className="flex justify-center items-center flex-col w-full">
-          <div className="flex justify-center items-center gap-4 w-full lg:px-48 px-8">
+          <div className="flex justify-center items-center gap-4 w-full">
             <div className="border-t border-primary w-full"></div>
             <p className="text-2xl font-semibold text-primary">Information</p>
             <div className="border-t border-primary w-full"></div>
           </div>
-          <div className="mt-6 w-full lg:px-48 px-8 grid grid-cols-1 sm:grid-cols-2 gap-4 gap-x-12">
+          <div className="mt-6 w-full grid grid-cols-1 sm:grid-cols-2 gap-4 gap-x-12">
             <div>
               <Label htmlFor="name" className="text-left text-base">
                 Restaurant name :
@@ -447,52 +607,29 @@ export default function RestaurantRegister({
               <Label htmlFor="restaurantPhotos" className="text-left text-base">
                 Restaurant photos :
               </Label>
-              <div className="mt-2 p-4 rounded-md border">
-                <div className="min-h-48 rounded-md border">
+              <div className="mt-2 rounded-md border">
+                <div className="min-h-40 rounded-md p-4">
                   {restaurantPhotos.length === 0 ? (
-                    <div className="flex justify-center items-center h-48">
+                    <div className="flex justify-center items-center h-40">
                       <p>No images selected</p>
                     </div>
                   ) : (
-                    <div className="p-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                      {restaurantPhotos.map((photo, index) => (
-                        <div
-                          className={`relative border rounded-lg ${
-                            /*
-                            index === 0 &&
-                            "ring-offset-background outline-none ring-2 ring-ring ring-offset-4"*/ ""
-                          }`}
-                          key={index}
-                        >
-                          <Image
-                            height={0}
-                            width={0}
-                            quality={30}
-                            sizes="100vw"
-                            style={{ width: "100%", height: "100%" }}
-                            src={photo.url}
-                            alt="Car image"
-                            className="object-cover rounded-lg aspect-video"
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => {
-                              const newArray = [...restaurantPhotos];
-                              newArray.splice(index, 1);
-                              setRestaurantPhotos(newArray);
-                            }}
-                            size="icon"
-                            variant="outline"
-                            className="bg-background hover:bg-accent opacity-80 absolute top-1 right-1 rounded-full p-1.5"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEndRestaurantPhotos}
+                    >
+                      <SortableContext items={restaurantPhotos} strategy={rectSortingStrategy}>
+                        <div className="p-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {restaurantPhotos.map((photo, index) => (
+                            <RestaurantPhotoSortableItem key={photo.id} index={index} content={photo} />
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </SortableContext>
+                    </DndContext>
                   )}
                 </div>
-                <div className="mt-4 flex items-center">
+                <div className="flex items-center border-t p-4">
                   <Label className="relative cursor-pointer h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
                     <span>Upload</span>
                     <input
@@ -508,12 +645,12 @@ export default function RestaurantRegister({
               </div>
             </div>
           </div>
-          <div className="mt-10 flex justify-center items-center gap-4 w-full lg:px-48 px-8">
+          <div className="mt-10 flex justify-center items-center gap-4 w-full">
             <div className="border-t border-primary w-full"></div>
             <p className="text-2xl font-semibold text-primary">Menu</p>
             <div className="border-t border-primary w-full"></div>
           </div>
-          <div className="mt-6 w-full lg:px-48 px-8 grid grid-cols-1 sm:grid-cols-2 gap-4 gap-x-12">
+          <div className="mt-6 w-full grid grid-cols-1 sm:grid-cols-2 gap-4 gap-x-12">
             <div className="sm:col-span-2">
               <Label htmlFor="popularDishes" className="text-left text-base">
                 Popular dishes :
@@ -539,7 +676,7 @@ export default function RestaurantRegister({
                               sizes="100vw"
                               style={{ width: "100%", height: "100%" }}
                               src={popularDishe.url}
-                              alt="Restaurant-img"
+                              alt="Dishe image"
                               className="rounded-md object-cover aspect-video"
                             />
                           </div>
@@ -625,45 +762,29 @@ export default function RestaurantRegister({
               <Label htmlFor="menuPhotos" className="text-left text-base">
                 Menu photos :
               </Label>
-              <div className="mt-2 p-4 rounded-md border">
-                <div className="min-h-48 rounded-md border">
+              <div className="mt-2 rounded-md border">
+                <div className="min-h-40 rounded-md p-4">
                   {menuPhotos.length === 0 ? (
-                    <div className="flex justify-center items-center h-48">
+                    <div className="flex justify-center items-center h-40">
                       <p>No images selected</p>
                     </div>
                   ) : (
-                    <div className="p-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                      {menuPhotos.map((photo, index) => (
-                        <div className="relative border rounded-lg" key={index}>
-                          <Image
-                            height={0}
-                            width={0}
-                            quality={30}
-                            sizes="100vw"
-                            style={{ width: "100%", height: "100%" }}
-                            src={photo.url}
-                            alt="Car image"
-                            className="object-cover rounded-lg aspect-video"
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => {
-                              const newArray = [...menuPhotos];
-                              newArray.splice(index, 1);
-                              setMenuPhotos(newArray);
-                            }}
-                            size="icon"
-                            variant="outline"
-                            className="bg-background hover:bg-accent opacity-80 absolute top-1 right-1 rounded-full p-1.5"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEndMenuPhotos}
+                    >
+                      <SortableContext items={menuPhotos} strategy={rectSortingStrategy}>
+                        <div className="p-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {menuPhotos.map((photo, index) => (
+                            <MenuPhotoSortableItem key={photo.id} index={index} content={photo} />
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </SortableContext>
+                    </DndContext>
                   )}
                 </div>
-                <div className="mt-4 flex items-center">
+                <div className="flex items-center p-4 border-t">
                   <Label className="relative cursor-pointer h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
                     <span>Upload</span>
                     <input
@@ -679,12 +800,12 @@ export default function RestaurantRegister({
               </div>
             </div>
           </div>
-          <div className="mt-10 flex justify-center items-center gap-4 w-full lg:px-48 px-8">
+          <div className="mt-10 flex justify-center items-center gap-4 w-full">
             <div className="border-t border-primary w-full"></div>
             <p className="text-2xl font-semibold text-primary">Hours</p>
             <div className="border-t border-primary w-full"></div>
           </div>
-          <div className="mt-6 w-full lg:px-48 px-8">
+          <div className="mt-6 w-full">
             <div className="w-full overflow-x-auto">
               <table className="w-full">
                 <tbody>
@@ -703,7 +824,8 @@ export default function RestaurantRegister({
                             ref={(el) => {
                               inputRefs.current[index * 4] = el;
                             }}
-                            onChange={(e) => handleInputChange(e, index * 4)}
+                            value={hoursState[index * 4]}
+                            onChange={(e) => handleInputChangeHH(e, index * 4)}
                             onKeyDown={(e) => handleKeyDown(e, index * 4)}
                           />
                           :
@@ -716,7 +838,8 @@ export default function RestaurantRegister({
                             ref={(el) => {
                               inputRefs.current[index * 4 + 1] = el;
                             }}
-                            onChange={(e) => handleInputChange(e, index * 4 + 1)}
+                            value={hoursState[index * 4 + 1]}
+                            onChange={(e) => handleInputChangeMM(e, index * 4 + 1)}
                             onKeyDown={(e) => handleKeyDown(e, index * 4 + 1)}
                           />
                         </div>
@@ -733,7 +856,8 @@ export default function RestaurantRegister({
                             ref={(el) => {
                               inputRefs.current[index * 4 + 2] = el;
                             }}
-                            onChange={(e) => handleInputChange(e, index * 4 + 2)}
+                            value={hoursState[index * 4 + 2]}
+                            onChange={(e) => handleInputChangeHH(e, index * 4 + 2)}
                             onKeyDown={(e) => handleKeyDown(e, index * 4 + 2)}
                           />
                           :
@@ -746,7 +870,8 @@ export default function RestaurantRegister({
                             ref={(el) => {
                               inputRefs.current[index * 4 + 3] = el;
                             }}
-                            onChange={(e) => handleInputChange(e, index * 4 + 3)}
+                            value={hoursState[index * 4 + 3]}
+                            onChange={(e) => handleInputChangeMM(e, index * 4 + 3)}
                             onKeyDown={(e) => handleKeyDown(e, index * 4 + 3)}
                           />
                         </div>
@@ -774,16 +899,7 @@ export default function RestaurantRegister({
             </div>
           </div>
         </div>
-        <div className="w-full flex justify-center items-center lg:px-48 px-8 mt-12 gap-8 ">
-          <Link
-            href={
-              searchParams.from !== undefined && searchParams.from !== "" ? (searchParams.from as string) : "/"
-            }
-          >
-            <Button type="button" variant="outline" className="w-32">
-              Cancel
-            </Button>
-          </Link>
+        <div className="w-full flex justify-center items-center mt-12 gap-8 ">
           <SubmitButton />
         </div>
       </form>
@@ -795,7 +911,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="w-32" disabled={pending}>
-      Sign up
+      Save Changes
     </Button>
   );
 }

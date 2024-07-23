@@ -21,14 +21,14 @@ export default function PopularDishes({
   return (
     <div className="pt-10">
       <div className="flex justify-between items-center">
-        <p className="text-[1.6rem] font-semibold">Popular Dishes</p>
+        <p className="text-2xl font-semibold">Popular Dishes</p>
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" className="text-primary hover:text-primary/80">
               Full menu
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-2xl">
+          <DialogContent className="sm:max-w-2xl p-2">
             <DialogTitle className="text-3xl">Full Menu</DialogTitle>
             <div className="h-80 overflow-y-auto">
               {menuPagesImageUrl.map((menuPageImageUrl, index) => (

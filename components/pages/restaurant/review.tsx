@@ -54,7 +54,7 @@ export default function Review({
   }
   return (
     <div className="mt-7 flex justify-start items-start gap-2">
-      <Avatar className="size-12 flex-none">
+      <Avatar className="size-12 flex-none border">
         <AvatarImage src={profileImage} />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>

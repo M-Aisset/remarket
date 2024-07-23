@@ -39,14 +39,17 @@ export async function signOut() {
 }
 
 export async function getSession() {
-  const session = cookies().get("session")?.value;
-  if (!session) return null;
-  const payload: {
-    user: { id: string };
-    expires: string;
-    iat: number;
-    exp: number;
-  } | null = await decrypt(session);
-
-  return payload;
+  try {
+    const session = cookies().get("session")?.value;
+    if (!session) return null;
+    const payload: {
+      user: { id: string };
+      expires: string;
+      iat: number;
+      exp: number;
+    } | null = await decrypt(session);
+    return payload;
+  } catch (e) {
+    return null;
+  }
 }

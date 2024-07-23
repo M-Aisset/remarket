@@ -54,7 +54,7 @@ export default function RatingAndReview({
   }
   return (
     <div className="py-10">
-      <p className="text-[1.6rem] font-semibold">Rating & Reviews</p>
+      <p className="text-2xl font-semibold">Rating & Reviews</p>
       <div className="pt-4 flex justify-between items-start gap-4 flex-col">
         <div className="w-full">
           <div className="flex justify-start items-center gap-2">

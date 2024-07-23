@@ -7,29 +7,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Check, ChevronDown } from "lucide-react";
 
-function searchParamsFormat(searchParamsArray: [string, string][]) {
-  if (searchParamsArray.length === 0) return "";
-  let searchParamsFormat = "?";
-  searchParamsArray.forEach((searchParam) => {
-    searchParamsFormat = searchParamsFormat.concat(
-      searchParam[0] + "=" + encodeURIComponent(searchParam[1]) + "&"
-    );
-  });
-  searchParamsFormat = searchParamsFormat.slice(0, -1);
-  return searchParamsFormat;
-}
+const setCookie = (name: string, value: string) => {
+  document.cookie = `${name}=${value}; path=/`;
+};
+
+const getCookie = (name: string): string | null => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() ?? null;
+  return null;
+};
 
 export default function LanguageToggle() {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  let temp = pathname.split("/");
-  temp.splice(1, 1);
-  const pathnameWithoutLang = temp.join("/");
-  const lang = pathname.split("/")[1];
+  const langCookie = getCookie("lang");
+  const lang = langCookie !== null ? langCookie : "en";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -44,7 +39,7 @@ export default function LanguageToggle() {
             variant="ghost"
             className="w-full h-full flex justify-start items-center gap-2"
             onClick={() => {
-              router.push("/en" + pathnameWithoutLang + searchParamsFormat(Array.from(searchParams.entries())));
+              setCookie("lang", "en");
               router.refresh();
             }}
           >
@@ -57,7 +52,7 @@ export default function LanguageToggle() {
             variant="ghost"
             className="w-full h-full flex justify-start items-center gap-2"
             onClick={() => {
-              router.push("/fr" + pathnameWithoutLang + searchParamsFormat(Array.from(searchParams.entries())));
+              setCookie("lang", "fr");
               router.refresh();
             }}
           >

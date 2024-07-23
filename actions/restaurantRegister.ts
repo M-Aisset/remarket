@@ -24,11 +24,15 @@ export async function restaurantRegister(formData: FormData) {
       categories: formData.getAll("categories") as string[],
       offerings: formData.getAll("offerings") as string[],
       description: formData.get("description") as string,
-      restaurantPhotos: await Promise.all((formData.getAll("restaurantPhotos") as File[]).map(compress)),
+      restaurantPhotos: await Promise.all(
+        (formData.getAll("restaurantPhotos") as File[]).map((file) => compress(file, 1500))
+      ),
       popularDishesNames: formData.getAll("popularDishesNames") as string[],
-      popularDishesPhotos: await Promise.all((formData.getAll("popularDishesPhotos") as File[]).map(compress)),
+      popularDishesPhotos: await Promise.all(
+        (formData.getAll("popularDishesPhotos") as File[]).map((file) => compress(file, 1500))
+      ),
       popularDishesPrices: formData.getAll("popularDishesPrices") as string[],
-      menuPhotos: await Promise.all((formData.getAll("menuPhotos") as File[]).map(compress)),
+      menuPhotos: await Promise.all((formData.getAll("menuPhotos") as File[]).map((file) => compress(file, 1500))),
       fromHours: formData.getAll("fromHours") as string[],
       fromMinutes: formData.getAll("fromMinutes") as string[],
       toHours: formData.getAll("toHours") as string[],

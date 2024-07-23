@@ -23,7 +23,7 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
     "/HeroImages/burrito-100.png",
   ];
 
-  const dic = await getDictionary(params.lang);
+  const dict = await getDictionary();
   return (
     <div>
       <div className="relative overflow-hidden border-b">
@@ -34,7 +34,7 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
             href="/"
             className="inline-flex justify-start items-center gap-2 bg-pink-200 dark:bg-pink-950/50 border border-pink-500 py-1 px-3 rounded-xl"
           >
-            <p className="text-sm">Info : The first 20 restaurant accounts for free</p>
+            <p className="text-sm">Info : The restaurant accounts for now are free</p>
             <MoveRight />
           </Link>
           <div className="flex justify-start items-center gap-20 mt-12 pl-2">
@@ -50,7 +50,7 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
             ))}
           </div>
           <div className="flex flex-col lgp:flex-row justify-center items-start lgp:gap-16 gap-8 mt-8">
-            <p className="lgp:w-3/5 w-full sm:text-7xl text-6xl">{dic.homePage.title}</p>
+            <p className="lgp:w-3/5 w-full sm:text-7xl text-6xl">{dict.homePage.title}</p>
             <div className="lgp:w-2/5 w-full flex flex-col justify-center items-start gap-8">
               <p className="sm:text-lg text-base text-muted-foreground">
                 Embark on a culinary voyage through our extensive selection of restaurants, explore thousands of
@@ -71,7 +71,7 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
       </div>
       <div className="mt-14 px-6 md:px-20">
         <p className="text-3xl font-semibold ">About us</p>
-        <p className="text-sm text-muted-foreground">Discover Our Content.</p>
+        <p className="text-sm text-muted-foreground">Discover Our Service.</p>
         <div className="grid md:grid-cols-2 gap-6 mt-6">
           <div className="relative group border flex flex-col justify-center items-center p-4">
             <Plus className="absolute top-0 right-0 size-6 -mt-3 -mr-3" />
@@ -185,7 +185,7 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
             sizes="100vw"
             style={{ width: "100%", height: "auto" }}
             src="/HeroImages/hero1.jpg"
-            alt="Hero1"
+            alt="Hero image"
             className="rounded-md hidden lgp:block mt-6 max-w-[37rem]"
           />
         </div>
@@ -196,19 +196,19 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
         <div className="flex items-center justify-between flex-col lg:flex-row gap-12 mt-6">
           <Dialog>
             <DialogTrigger className="w-full">
-              <div className="group border rounded-md flex items-center justify-between gap-2 py-4 px-6 w-full">
+              <div className="group border rounded-md flex items-center justify-between gap-2 p-4 w-full h-[10rem]">
                 <Image
                   height={0}
                   width={0}
                   sizes="100vw"
-                  style={{ width: "30%", height: "auto" }}
+                  style={{ width: "auto", height: "100%" }}
                   src="/qr-code.png"
                   alt="qr-code"
-                  className="mr-4"
+                  className="mr-4 aspect-square"
                 />
                 <div className="flex items-center justify-between gap-7 flex-1">
                   <div>
-                    <p className="text-left font-medium md:text-xl text-lg group-hover:underline">
+                    <p className="text-left font-medium md:text-xl text-base group-hover:underline">
                       Download the app for android
                     </p>
                     <p className="text-left md:text-base text-sm mt-2 text-muted-foreground">Scan to download</p>
@@ -226,19 +226,19 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
           </Dialog>
           <Dialog>
             <DialogTrigger className="w-full">
-              <div className="group border rounded-md flex items-center justify-between gap-2 py-4 px-6 w-full">
+              <div className="group border rounded-md flex items-center justify-between gap-2 p-4 w-full h-[10rem]">
                 <Image
                   height={0}
                   width={0}
                   sizes="100vw"
-                  style={{ width: "30%", height: "auto" }}
+                  style={{ width: "auto", height: "100%" }}
                   src="/qr-code.png"
                   alt="qr-code"
-                  className="mr-4"
+                  className="mr-4 aspect-square"
                 />
                 <div className="flex items-center justify-between gap-7 flex-1">
                   <div>
-                    <p className="text-left font-medium md:text-xl text-lg group-hover:underline">
+                    <p className="text-left font-medium md:text-xl text-base group-hover:underline">
                       Download the app for ios
                     </p>
                     <p className="text-left md:text-base text-sm mt-2 text-muted-foreground">Scan to download</p>
